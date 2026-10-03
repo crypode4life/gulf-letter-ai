@@ -115,7 +115,14 @@ module.exports = async function handler(req, res) {
     if (!r.ok) { console.error('Claude API error:', data); await refund(); return res.status(502).json({ error: 'ai_failed' }); }
     const t = (data.content || []).find(x => x.type === 'text');
     if (!t) { await refund(); return res.status(502).json({ error: 'ai_failed' }); }
-    return res.status(200).json({ letter: t.text.trim(), remaining: Math.max(0, perVisitor - used) });
+    let letter = t.text.trim();
+    // A formal letter must be dated: add today's date at the top if the AI left it out
+    if (b.format === 'letter') {
+      const top = letter.slice(0, 160);
+      const year = String(new Date().getFullYear()), yearAr = year.replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+      if (!top.includes(year) && !top.includes(yearAr)) letter = today + '\n\n' + letter;
+    }
+    return res.status(200).json({ letter, remaining: Math.max(0, perVisitor - used) });
   } catch (e) {
     console.error('Letter error:', e); await refund();
     return res.status(500).json({ error: 'ai_failed' });
