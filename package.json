@@ -1,0 +1,6 @@
+{
+  "name": "gulf-letter-ai",
+  "version": "1.0.0",
+  "description": "Gulf Letter AI: free bilingual letter and complaint writer by Crypode",
+  "engines": { "node": "24.x" }
+}
